@@ -7,6 +7,7 @@ from utils.dates import *
 from connections.alchemy_connection import AlchemyConnection
 from utils.operations import Operations
 import xlsxwriter
+# from envio_one_drive.enviar_lista_precio import EnviarListaPrecioOneDrive
 from envio_one_drive.enviar_lista_precio import EnviarListaPrecioOneDrive
 
 class ListaPrecioInventario:
@@ -19,9 +20,10 @@ class ListaPrecioInventario:
         self.df_inventario_CO = None
 
     def main(self):
+        fecha=getDate()
         print('<--------------- Ejecutando Script Contigencia de lista de precio y inventario--------------->')
         print('<--------------- Ejecutando consulta de lista de precio --------------->')
-        sql = "exec sp_items_lista_prc_cons 4,NULL,'2024-05-16 00:00:00',10114,'copia_contigencia',NULL,0,'2015-11-01 00:00:00','2015-11-27 00:00:00',NULL,NULL,NULL,NULL,NULL,0,1,NULL,NULL,NULL,NULL"
+        sql = f"exec sp_items_lista_prc_cons 4,NULL,'{fecha} 00:00:00',10114,'copia_contigencia',NULL,0,'2015-11-01 00:00:00','2015-11-27 00:00:00',NULL,NULL,NULL,NULL,NULL,0,1,NULL,NULL,NULL,NULL"
         self.df_lista_precios = self.operation.get_data(self.engine_mssql, sql)
         self.df_lista_precios['f_lista'] = self.df_lista_precios['f_lista'].astype(np.float64)
         self.df_lista_precios['f_item'] = self.df_lista_precios['f_item'].astype(np.float64)
@@ -122,7 +124,7 @@ class ListaPrecioInventario:
             worksheet.autofilter(0, 0, 0, len(grupo.columns) - 1)  # Agregar filtro a la cabecera
         
         workbook.close()
-        print("iniciado envio")
+        print("<------------------------------------iniciado Carga al one drive------------------------------------------------>")
         EnviarListaPrecioOneDrive(nombre_archivo)
 
     def get_column_letter(self, col_num):
@@ -131,12 +133,6 @@ class ListaPrecioInventario:
             col_num, remainder = divmod(col_num, 26)
             col_letter = chr(65 + remainder) + col_letter
         return col_letter
-
-
-    # def removeArchivo(nombre_archivo):
-    #     if os.path.exists(nombre_archivo):
-    #         os.remove(nombre_archivo)
-    
   
-lista_precio_inventario = ListaPrecioInventario()
-lista_precio_inventario.main()
+# lista_precio_inventario = ListaPrecioInventario()
+# lista_precio_inventario.main()
